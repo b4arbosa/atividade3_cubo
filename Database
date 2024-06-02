@@ -1,0 +1,105 @@
+CRIAR TABELA estoque_frutas (
+    id_estoque INT CHAVE PRIMÁRIA AUTO_INCREMENT,
+    id_fruta INT,
+    id_localização INT,
+    id_tempo INT,
+    quantidade INT
+);
+
+CREATE TABLE fruta (
+    id_fruta INT CHAVE PRIMÁRIA AUTO_INCREMENT,
+    nome_fruta VARCHAR(50)
+);
+
+
+CRIAR TABELA andamento (
+    id_tempo INT CHAVE PRIMÁRIA AUTO_INCREMENT,
+    ano INT,
+    trimestre INT,
+    mês INT
+);
+
+
+CREATE TABLE localização (
+    id_localizacao INT CHAVE PRIMÁRIA AUTO_INCREMENT,
+    pais VARCHAR(50),
+    estado VARCHAR(50),
+    cidade VARCHAR(50)
+);
+
+
+
+
+INSERIR VALORES EM fruta (nome_fruta)
+('Maçã'), ('Banana'), ('Laranja');
+
+
+INSERT INTO tempo (ano, trimestre, mes) VALUES
+(2023, 1, 1), (2023, 1, 2), (2023, 1, 3),
+(2023, 2, 4), (2023, 2, 5), (2023, 2, 6);
+
+
+INSERT INTO localizacao (pais, estado, cidade) VALORES
+('EUA', 'Califórnia', 'Los Angeles'),
+('EUA', 'Califórnia', 'São Francisco'),
+('EUA', 'Nova Iorque', 'Nova Iorque');
+
+
+INSERIR EM estoque_frutas (id_fruta, id_localizacao, id_tempo, quantidade) VALORES
+(1, 1, 1, 100),
+(1, 2, 2, 150),
+(2, 3, 3, 200),
+(1, 1, 4, 250),
+(2, 2, 5, 300),
+(1, 3, 6, 350),
+(3, 1, 1, 120),
+(3, 2, 2, 180),
+(3, 3, 3, 240);
+
+
+
+SELECT t.ano, l.pais, f.nome_fruta, SOMA(ef.quantidade) AS quantidade_total
+DE estoque_frutas ef
+JOIN tempo t ON ef.id_tempo = t.id_tempo
+JOIN localização l ON ef.id_localizacao = l.id_localizacao
+JOIN fruta f ON ef.id_fruta = f.id_fruta
+GRUPO POR t.ano, l.pais, f.nome_fruta;
+
+
+SELECT t.ano, t.trimestre, t.mes, f.nome_fruta, SUM(ef.quantidade) AS quantidade_total
+DE estoque_frutas ef
+JOIN tempo t ON ef.id_tempo = t.id_tempo
+JOIN localização l ON ef.id_localizacao = l.id_localizacao
+JOIN fruta f ON ef.id_fruta = f.id_fruta
+ONDE t.ano = 2023 E t.trimestre = 1
+GRUPO POR t.ano, t.trimestre, t.mes, f.nome_fruta;
+
+
+SELECT t.ano, t.trimestre, l.pais, l.estado, l.cidade, f.nome_fruta, SUM(ef.quantidade) AS quantidade_total
+DE estoque_frutas ef
+JOIN tempo t ON ef.id_tempo = t.id_tempo
+JOIN localização l ON ef.id_localizacao = l.id_localizacao
+JOIN fruta f ON ef.id_fruta = f.id_fruta
+ONDE t.ano = 2023 E t.trimestre = 1
+GRUPO POR t.ano, t.trimestre, l.pais, l.estado, l.cidade, f.nome_fruta;
+
+
+SELECT t.ano, t.trimestre, l.estado, l.cidade, f.nome_fruta, SUM(ef.quantidade) AS quantidade_total
+DE estoque_frutas ef
+JOIN tempo t ON ef.id_tempo = t.id_tempo
+JOIN localização l ON ef.id_localizacao = l.id_localizacao
+JOIN fruta f ON ef.id_fruta = f.id_fruta
+ONDE t.ano = 2023 AND (t.trimestre = 1 OR t.trimestre = 2) AND l.estado = 'Califórnia'
+GRUPO POR t.ano, t.trimestre, l.estado, l.cidade, f.nome_fruta;
+
+
+SELECIONAR
+    f.nome_fruta,
+    SOMA(CASE WHEN t.trimestre = 1 THEN ef.quantidade ELSE 0 END) AS quantidade_Q1,
+    SOMA(CASE WHEN t.trimestre = 2 THEN ef.quantidade ELSE 0 END) AS quantidade_Q2,
+    SOMA(CASE WHEN t.trimestre = 3 THEN ef.quantidade ELSE 0 END) AS quantidade_Q3,
+    SOMA(CASE WHEN t.trimestre = 4 THEN ef.quantidade ELSE 0 END) AS quantidade_Q4
+DE estoque_frutas ef
+JOIN tempo t ON ef.id_tempo = t.id_tempo
+JOIN fruta f ON ef.id_fruta = f.id_fruta
+GRUPO POR f.nome_fruta;
